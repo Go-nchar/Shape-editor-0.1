@@ -51,6 +51,7 @@
             this.pictureBox.Size = new System.Drawing.Size(759, 539);
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
+            this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler((s, e) => DrawFigures());
             // 
             // button1
             // 

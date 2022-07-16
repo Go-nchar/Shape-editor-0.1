@@ -20,5 +20,10 @@ namespace ShapeEditor
             Brush = new SolidBrush(Color.DarkMagenta);
             Pen = new Pen(Color.Black, 2);
         }
+
+        public static void Clear()
+        {
+            Graphics.Clear(SystemColors.ActiveCaption);
+        }
     }
 }

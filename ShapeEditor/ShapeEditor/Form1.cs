@@ -13,6 +13,7 @@ namespace ShapeEditor
     public partial class Form1 : Form
     {
         private Random _random = new Random();
+        private List<Figure> _figures = new List<Figure>();
 
         public Form1()
         {
@@ -30,6 +31,7 @@ namespace ShapeEditor
             var t = new Triangle();
             t.Create(pictureBox);
             t.Draw();
+            _figures.Add(t);
         }
 
         private void OnRectButtonClick(object sender, EventArgs e)
@@ -37,6 +39,7 @@ namespace ShapeEditor
             var r = new Rect();
             r.Create(pictureBox);
             r.Draw();
+            _figures.Add(r);
         }
 
         private void OnPentagonButtonClick(object sender, EventArgs e)
@@ -44,6 +47,7 @@ namespace ShapeEditor
             var p = new Pentagon();
             p.Create(pictureBox);
             p.Draw();
+            _figures.Add(p);
         }
 
         private void OnCircleButtonClick(object sender, EventArgs e)
@@ -51,6 +55,16 @@ namespace ShapeEditor
             var c = new Circle();
             c.Create(pictureBox);
             c.Draw();
+            _figures.Add(c);
+        }
+
+        public void DrawFigures()
+        {
+            GraphicsManager.Clear();
+            foreach (Figure f in _figures)
+            {
+                f.Draw();
+            }
         }
     }
 }
