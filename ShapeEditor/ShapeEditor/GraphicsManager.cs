@@ -19,6 +19,7 @@ namespace ShapeEditor
             Graphics = p.CreateGraphics();
             Brush = new SolidBrush(Color.DarkMagenta);
             Pen = new Pen(Color.Black, 2);
+            p.SizeChanged += (s, e) => Graphics = p.CreateGraphics();
         }
 
         public static void Clear()

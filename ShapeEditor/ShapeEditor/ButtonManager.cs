@@ -8,46 +8,42 @@ using System.Windows.Forms;
 
 namespace ShapeEditor
 {
-    public static class ButtonManager
+    public class BaseButton : Button
     {
-        private static bool _isDragged;
-        private static Point _downPoint;
+        private bool _isDragged;
+        private Point _downPoint;
+        private PictureBox _pictureBox;
 
-        public static event Func<Point, Button, bool> Dragged;
+        public event Func<Point, BaseButton, bool> Dragged;
 
-        public static void HandleMove(this Button button, PictureBox pictureBox)
-        {
-            button.MouseDown += OnMouseDown;
-            button.MouseUp += OnMouseUp;
-            button.MouseMove += (s, e) => OnMouseMove(e, button, pictureBox);
-        }
+        public void SetPictBox(PictureBox pBox) => _pictureBox = pBox;
 
-        private static void OnMouseUp(object s, MouseEventArgs e)
+        protected override void OnMouseUp(MouseEventArgs mevent)
         {
             _isDragged = false;
         }
 
-        private static void OnMouseDown(object s, MouseEventArgs e)
+        protected override void OnMouseDown(MouseEventArgs mevent)
         {
-            _downPoint = e.Location;
+            _downPoint = mevent.Location;
             _isDragged = true;
         }
 
-        private static void OnMouseMove(MouseEventArgs e, Button b, PictureBox pictureBox)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
             if (!_isDragged)
                 return;
 
             Point diff = new Point(e.Location.X - _downPoint.X, e.Location.Y - _downPoint.Y);
 
-            if (pictureBox.Width > b.Location.X + diff.X && pictureBox.Height > b.Location.Y + diff.Y)
+            if (_pictureBox.Width > Location.X + diff.X && _pictureBox.Height > Location.Y + diff.Y)
             {
-                if (b.Location.X + diff.X > 0 && b.Location.Y + diff.Y > 0)
+                if (Location.X + diff.X > 0 && Location.Y + diff.Y > 0)
                 {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
-                    b.Location = new Point(x, y);
-                    _isDragged = Dragged?.Invoke(diff, b) ?? true;
+                    int x = Location.X + diff.X;
+                    int y = Location.Y + diff.Y;
+                    Location = new Point(x, y);
+                    _isDragged = Dragged?.Invoke(diff, this) ?? true;
                 }
             }
         }

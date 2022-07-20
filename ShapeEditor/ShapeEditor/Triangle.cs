@@ -12,30 +12,14 @@ namespace ShapeEditor
     {
         public override void Create(PictureBox pictureBox)
         {
-            PictureBox = pictureBox;
-
-            var x = 0;
-            var y = 0;
+            var points = new List<Point>();
             for (int i = 0; i < 3; ++i)
             {
-                var button = new Button();
-                button.Size = new Size(8, 8);
-                button.Location = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
-                x += button.Location.X / 3;
-                y += button.Location.Y / 3;
-                button.HandleMove(pictureBox);
-                Buttons.Add(button);
+                var p = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+                points.Add(p);
             }
 
-            CenterButton = new Button();
-            CenterButton.Size = new Size(8, 8);
-            CenterButton.Location = new Point(x, y);
-            CenterButton.HandleMove(pictureBox);
-
-            ButtonManager.Dragged += Update;
-
-            pictureBox.Controls.AddRange(Buttons.ToArray());
-            pictureBox.Controls.Add(CenterButton);
+            SetData(new Point(), points, pictureBox);
         }
 
         public override void Draw()
@@ -48,21 +32,51 @@ namespace ShapeEditor
             GraphicsManager.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
         }
 
-        public override bool Update(Point diff, Button button)
+        public override List<string> GetData()
+        {
+            var strs = new List<string>();
+            strs.Add("Triangle");
+            //strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            foreach (var b in Buttons)
+            {
+                strs.Add(b.Location.X + " " + b.Location.Y);
+            }
+
+            return strs;
+        }
+
+        public override void SetData(Point centerPoint, List<Point> points, PictureBox pictureBox)
+        {
+            PictureBox = pictureBox;
+
+            var x = 0;
+            var y = 0;
+            foreach (var p in points)
+            {
+                var button = new BaseButton();
+                button.Size = new Size(8, 8);
+                button.Location = p;
+                x += button.Location.X / 3;
+                y += button.Location.Y / 3;
+                button.SetPictBox(pictureBox);
+                button.Dragged += Update;
+                Buttons.Add(button);
+            }
+
+            CenterButton = new BaseButton();
+            CenterButton.Size = new Size(8, 8);
+            CenterButton.Location = new Point(x, y);
+            CenterButton.SetPictBox(pictureBox);
+            CenterButton.Dragged += Update;
+
+            pictureBox.Controls.AddRange(Buttons.ToArray());
+            pictureBox.Controls.Add(CenterButton);
+        }
+
+        public override bool Update(Point diff, BaseButton button)
         {
             if (button == CenterButton)
             {
-                foreach (var b in Buttons)
-                {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
-
-                    if (x < 0 || y < 0 || x > PictureBox.Width || y > PictureBox.Height)
-                    {
-                        return false;
-                    }
-                }
-
                 foreach (var b in Buttons)
                 {
                     int x = b.Location.X + diff.X;
@@ -86,7 +100,26 @@ namespace ShapeEditor
                 Program.MainForm.DrawFigures();
             }
 
-            return true;
+            OnUpdate();
+            return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
+        }
+
+        protected override bool IsValidate(Point center, List<Point> points)
+        {
+            var isValidate = true;
+            if (center.X < 0 || center.Y < 0 || center.X > PictureBox.Width || center.Y > PictureBox.Height)
+            {
+                isValidate = false;
+            }
+            foreach (var p in points)
+            {
+                if (p.X < 0 || p.Y < 0 || p.X > PictureBox.Width || p.Y > PictureBox.Height)
+                {
+                    isValidate = false;
+                }
+            }
+
+            return isValidate;
         }
     }
 }

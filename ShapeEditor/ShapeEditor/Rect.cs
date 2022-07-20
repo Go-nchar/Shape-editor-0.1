@@ -14,17 +14,10 @@ namespace ShapeEditor
 
         public override void Create(PictureBox pictureBox)
         {
-            PictureBox = pictureBox;
-
             var leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
             var width = Random.Next(0, pictureBox.Size.Width - leftUpPoint.X);
             var height = Random.Next(0, pictureBox.Size.Height - leftUpPoint.Y);
             _rect = new Rectangle(leftUpPoint.X + 4, leftUpPoint.Y + 4, width, height);
-
-            CenterButton = new Button();
-            CenterButton.Size = new Size(8, 8);
-            CenterButton.Location = new Point(leftUpPoint.X + width / 2, leftUpPoint.Y + height / 2);
-            CenterButton.HandleMove(pictureBox);
 
             var points = new List<Point>()
             {
@@ -34,19 +27,7 @@ namespace ShapeEditor
                 new Point(leftUpPoint.X, leftUpPoint.Y + height)
             };
 
-            foreach (var p in points)
-            {
-                var b = new Button();
-                b.Size = new Size(8, 8);
-                b.Location = p;
-                b.HandleMove(pictureBox);
-                Buttons.Add(b);
-            }
-
-            ButtonManager.Dragged += Update;
-
-            pictureBox.Controls.Add(CenterButton);
-            pictureBox.Controls.AddRange(Buttons.ToArray());
+            SetData(new Point(leftUpPoint.X + width / 2, leftUpPoint.Y + height / 2), points, pictureBox);
         }
 
         public override void Draw()
@@ -54,21 +35,47 @@ namespace ShapeEditor
             GraphicsManager.Graphics.DrawRectangle(GraphicsManager.Pen, _rect);
         }
 
-        public override bool Update(Point diff, Button button)
+        public override List<string> GetData()
+        {
+            var strs = new List<string>();
+            strs.Add("Rect");
+            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            foreach (var b in Buttons)
+            {
+                strs.Add(b.Location.X + " " + b.Location.Y);
+            }
+
+            return strs;
+        }
+
+        public override void SetData(Point centerPoint, List<Point> points, PictureBox pictureBox)
+        {
+            PictureBox = pictureBox;
+
+            CenterButton = new BaseButton();
+            CenterButton.Size = new Size(8, 8);
+            CenterButton.Location = centerPoint;
+            CenterButton.SetPictBox(pictureBox);
+            CenterButton.Dragged += Update;
+
+            foreach (var p in points)
+            {
+                var b = new BaseButton();
+                b.Size = new Size(8, 8);
+                b.Location = p;
+                b.SetPictBox(pictureBox);
+                b.Dragged += Update;
+                Buttons.Add(b);
+            }
+
+            pictureBox.Controls.Add(CenterButton);
+            pictureBox.Controls.AddRange(Buttons.ToArray());
+        }
+
+        public override bool Update(Point diff, BaseButton button)
         {
             if (button == CenterButton)
             {
-                foreach (var b in Buttons)
-                {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
-
-                    if (x < 0 || y < 0 || x > PictureBox.Width || y > PictureBox.Height)
-                    {
-                        return false;
-                    }
-                }
-
                 foreach (var b in Buttons)
                 {
                     int x = b.Location.X + diff.X;
@@ -121,7 +128,32 @@ namespace ShapeEditor
                 Program.MainForm.DrawFigures();
             }
 
-            return true;
+
+            OnUpdate();
+            return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
+        }
+
+        protected override bool IsValidate(Point center, List<Point> points)
+        {
+            var isValidate = true;
+            if (center.X < 0 || center.X > PictureBox.Width ||
+                center.Y < 0 || center.Y > PictureBox.Height)
+            {
+                isValidate = false;
+            }
+            foreach (var p in points)
+            {
+                var y = Math.Abs(p.Y - center.Y);
+                var x = Math.Abs(p.X - center.X);
+                var radius = (int)Math.Sqrt(x * x + y * y);
+
+                if (center.X - radius < 0 || center.X + radius > PictureBox.Width ||
+                    center.Y - radius < 0 || center.Y + radius > PictureBox.Height)
+                {
+                    isValidate = false;
+                }
+            }
+            return isValidate;
         }
     }
 }

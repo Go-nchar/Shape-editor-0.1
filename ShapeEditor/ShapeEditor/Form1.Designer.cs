@@ -51,7 +51,7 @@
             this.pictureBox.Size = new System.Drawing.Size(759, 539);
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
-            this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler((s, e) => DrawFigures());
+            this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.DrawFigures);
             // 
             // button1
             // 
@@ -70,8 +70,11 @@
             this.textBox1.Location = new System.Drawing.Point(777, 38);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox1.Size = new System.Drawing.Size(221, 539);
             this.textBox1.TabIndex = 2;
+            this.textBox1.TextChanged += new System.EventHandler(this.OnTextBoxChanged);
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxKeyPress);
             // 
             // button2
             // 
@@ -111,6 +114,7 @@
             this.button5.TabIndex = 6;
             this.button5.Text = "clear";
             this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.OnClearButtonClick);
             // 
             // button6
             // 

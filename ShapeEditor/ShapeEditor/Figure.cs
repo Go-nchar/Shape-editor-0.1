@@ -11,14 +11,27 @@ namespace ShapeEditor
     public abstract class Figure
     {
         protected Random Random = new Random();
-        protected List<Button> Buttons = new List<Button>();
-        protected Button CenterButton;
+        protected List<BaseButton> Buttons = new List<BaseButton>();
+        protected BaseButton CenterButton;
         protected PictureBox PictureBox;
+
+        public event Action Updated;
 
         public abstract void Create(PictureBox pictureBox);
 
-        public abstract bool Update(Point diff, Button button);
+        public abstract bool Update(Point diff, BaseButton button);
 
         public abstract void Draw();
+
+        public abstract List<string> GetData();
+
+        public abstract void SetData(Point centerPoint, List<Point> points, PictureBox pictureBox);
+
+        protected abstract bool IsValidate(Point center, List<Point> points);
+
+        protected void OnUpdate()
+        {
+            Updated?.Invoke();
+        }
     }
 }
