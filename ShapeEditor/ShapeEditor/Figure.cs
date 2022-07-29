@@ -11,9 +11,11 @@ namespace ShapeEditor
     public abstract class Figure
     {
         protected Random Random = new Random();
-        protected List<BaseButton> Buttons = new List<BaseButton>();
-        protected BaseButton CenterButton;
+        public List<BaseButton> Buttons = new List<BaseButton>();
+        public BaseButton CenterButton;
         protected PictureBox PictureBox;
+
+        public List<int> Indexes = new List<int>();
 
         public event Action Updated;
 
@@ -33,5 +35,6 @@ namespace ShapeEditor
         {
             Updated?.Invoke();
         }
+
     }
 }

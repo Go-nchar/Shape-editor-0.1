@@ -128,12 +128,7 @@ namespace ShapeEditor
             }
             foreach (var p in points)
             {
-                var y = Math.Abs(p.Y - center.Y);
-                var x = Math.Abs(p.X - center.X);
-                var radius = (int)Math.Sqrt(x * x + y * y);
-
-                if (center.X - radius < 0 || center.X + radius > PictureBox.Width ||
-                    center.Y - radius < 0 || center.Y + radius > PictureBox.Height)
+                if (p.X < 0 || p.X > PictureBox.Width || p.Y < 0 || p.Y > PictureBox.Height)
                 {
                     isValidate = false;
                 }

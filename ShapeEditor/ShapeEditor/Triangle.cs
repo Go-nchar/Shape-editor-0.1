@@ -36,7 +36,7 @@ namespace ShapeEditor
         {
             var strs = new List<string>();
             strs.Add("Triangle");
-            //strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
             foreach (var b in Buttons)
             {
                 strs.Add(b.Location.X + " " + b.Location.Y);

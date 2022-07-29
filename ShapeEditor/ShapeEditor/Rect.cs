@@ -51,7 +51,6 @@ namespace ShapeEditor
         public override void SetData(Point centerPoint, List<Point> points, PictureBox pictureBox)
         {
             PictureBox = pictureBox;
-
             CenterButton = new BaseButton();
             CenterButton.Size = new Size(8, 8);
             CenterButton.Location = centerPoint;
@@ -70,6 +69,18 @@ namespace ShapeEditor
 
             pictureBox.Controls.Add(CenterButton);
             pictureBox.Controls.AddRange(Buttons.ToArray());
+
+            var width = Buttons[1].Location.X - Buttons[0].Location.X;
+            var height = Buttons[3].Location.Y - Buttons[0].Location.Y;
+            CenterButton.Location = new Point(Buttons[0].Location.X + width / 2,
+                Buttons[0].Location.Y + height / 2);
+
+            width = Math.Abs(width);
+            height = Math.Abs(height);
+
+            var leftUpButton = new Point(CenterButton.Location.X - width / 2, CenterButton.Location.Y - height / 2);
+
+            _rect = new Rectangle(leftUpButton.X + 4, leftUpButton.Y + 4, width, height);
         }
 
         public override bool Update(Point diff, BaseButton button)
@@ -143,12 +154,7 @@ namespace ShapeEditor
             }
             foreach (var p in points)
             {
-                var y = Math.Abs(p.Y - center.Y);
-                var x = Math.Abs(p.X - center.X);
-                var radius = (int)Math.Sqrt(x * x + y * y);
-
-                if (center.X - radius < 0 || center.X + radius > PictureBox.Width ||
-                    center.Y - radius < 0 || center.Y + radius > PictureBox.Height)
+                if (p.X < 0 || p.Y < 0 || p.X > PictureBox.Width || p.Y > PictureBox.Height)
                 {
                     isValidate = false;
                 }
