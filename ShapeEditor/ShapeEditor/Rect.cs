@@ -89,14 +89,28 @@ namespace ShapeEditor
             {
                 foreach (var b in Buttons)
                 {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
-
-                    b.Location = new Point(x, y);
+                    b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
                 }
 
                 _rect.X += diff.X;
                 _rect.Y += diff.Y;
+
+                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
+                {
+                    MessageBox.Show("size exceeded!");
+
+                    CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
+
+                    foreach (var b in Buttons)
+                    {
+                        b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
+                    }
+
+                    _rect.X -= diff.X;
+                    _rect.Y -= diff.Y;
+
+                    return false;
+                }
 
                 Program.MainForm.DrawFigures();
             }
@@ -144,7 +158,7 @@ namespace ShapeEditor
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
         }
 
-        protected override bool IsValidate(Point center, List<Point> points)
+        public override bool IsValidate(Point center, List<Point> points)
         {
             var isValidate = true;
             if (center.X < 0 || center.X > PictureBox.Width ||

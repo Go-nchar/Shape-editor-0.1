@@ -29,7 +29,7 @@ namespace ShapeEditor
 
         public abstract void SetData(Point centerPoint, List<Point> points, PictureBox pictureBox);
 
-        protected abstract bool IsValidate(Point center, List<Point> points);
+        public abstract bool IsValidate(Point center, List<Point> points);
 
         protected void OnUpdate()
         {

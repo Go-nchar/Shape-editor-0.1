@@ -71,7 +71,7 @@ namespace ShapeEditor
                     CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
         }
 
-        protected override bool IsValidate(Point center, List<Point> points)
+        public override bool IsValidate(Point center, List<Point> points)
         {
             var isValidate = true;
             if (center.X < 0 || center.X > PictureBox.Width ||
@@ -100,14 +100,28 @@ namespace ShapeEditor
             {
                 foreach (var b in Buttons)
                 {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
-
-                    b.Location = new Point(x, y);
+                    b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
                 }
 
                 _rect.X += diff.X;
                 _rect.Y += diff.Y;
+
+                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
+                {
+                    MessageBox.Show("size exceeded!");
+
+                    CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
+
+                    foreach (var b in Buttons)
+                    {
+                        b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
+                    }
+
+                    _rect.X -= diff.X;
+                    _rect.Y -= diff.Y;
+
+                    return false;
+                }
 
                 Program.MainForm.DrawFigures();
             }
@@ -119,6 +133,22 @@ namespace ShapeEditor
 
                 _rect = new Rectangle(CenterButton.Location.X - radius + 4, 
                     CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
+
+                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
+                {
+                    MessageBox.Show("size exceeded!");
+
+                    button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
+
+                    y = Math.Abs(button.Location.Y - CenterButton.Location.Y);
+                    x = Math.Abs(button.Location.X - CenterButton.Location.X);
+                    radius = (int)Math.Sqrt(x * x + y * y);
+
+                    _rect = new Rectangle(CenterButton.Location.X - radius + 4,
+                        CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
+
+                    return false;
+                }
 
                 Program.MainForm.DrawFigures();
             }

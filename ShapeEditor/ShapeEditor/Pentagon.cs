@@ -86,10 +86,21 @@ namespace ShapeEditor
             {
                 foreach (var b in Buttons)
                 {
-                    int x = b.Location.X + diff.X;
-                    int y = b.Location.Y + diff.Y;
+                    b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
+                }
 
-                    b.Location = new Point(x, y);
+                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
+                {
+                    MessageBox.Show("size exceeded!");
+
+                    CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
+
+                    foreach (var b in Buttons)
+                    {
+                        b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
+                    }
+
+                    return false;
                 }
 
                 Program.MainForm.DrawFigures();
@@ -106,6 +117,29 @@ namespace ShapeEditor
                     (float)(Math.Sin(i * angle) * radius),
                     (float)(Math.Cos(i * angle) * radius)))).ToList();
 
+                if (false == IsValidate(CenterButton.Location, points.ConvertAll(new Converter<PointF, Point>(p => new Point((int)p.X, (int)p.Y)))))
+                {
+                    MessageBox.Show("size exceeded!");
+
+                    button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
+
+                    x = Math.Abs(button.Location.X - CenterButton.Location.X);
+                    y = Math.Abs(button.Location.Y - CenterButton.Location.Y);
+                    radius = Math.Sqrt(x * x + y * y);
+
+                    points = Enumerable.Range(0, 5).Select(i => PointF.Add((PointF)CenterButton.Location,
+                       new SizeF(
+                       (float)(Math.Sin(i * angle) * radius),
+                       (float)(Math.Cos(i * angle) * radius)))).ToList();
+
+                    for (var i = 0; i < points.Count; i++)
+                    {
+                        Buttons[i].Location = new Point((int)points[i].X, (int)points[i].Y);
+                    }
+
+                    return false;
+                }
+
                 for (var i = 0; i < points.Count; i++)
                 {
                     Buttons[i].Location = new Point((int)points[i].X, (int)points[i].Y);
@@ -118,7 +152,7 @@ namespace ShapeEditor
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
         }
 
-        protected override bool IsValidate(Point center, List<Point> points)
+        public override bool IsValidate(Point center, List<Point> points)
         {
             var isValidate = true;
             if (center.X < 0 || center.X > PictureBox.Width ||

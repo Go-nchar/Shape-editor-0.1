@@ -126,8 +126,18 @@ namespace ShapeEditor
                         continue;
 
                     var str = textBox.Lines[j];
+                    
                     if (!regex.IsMatch(str))
-                        str = "0 0";
+                    {
+                        if (j == f.Indexes[1])
+                        {
+                            str = f.CenterButton.Location.X.ToString() + " " + f.CenterButton.Location.Y.ToString();
+                        }
+                        else
+                        {
+                            str = f.Buttons[points.Count].Location.X.ToString() + " " + f.Buttons[points.Count].Location.Y.ToString();
+                        }
+                    }
 
                     var nums = str.Split(' ').Select(snum => int.Parse(snum)).ToArray();
                     if (j == f.Indexes[1])
@@ -135,13 +145,13 @@ namespace ShapeEditor
                         center = new Point(nums[0], nums[1]);
                         if (center.X > pictureBox.Width)
                         {
-                            center.X = pictureBox.Width - 4;
-                            MessageBox.Show("size exceeded");
+                            center.X = f.CenterButton.Location.X;
+                            MessageBox.Show("size exceeded!");
                         }
                         else if (center.Y > pictureBox.Height)
                         {
-                            center.Y = pictureBox.Height - 4;
-                            MessageBox.Show("size exceeded");
+                            center.Y = f.CenterButton.Location.Y;
+                            MessageBox.Show("size exceeded!");
                         }
                     }
                     else
@@ -150,14 +160,14 @@ namespace ShapeEditor
                         if (points.Last().X > pictureBox.Width)
                         {
                             points.Remove(points.Last());
-                            points.Add(new Point(pictureBox.Width - 4, pictureBox.Height/2));
-                            MessageBox.Show("size exceeded");
+                            points.Add(new Point(f.Buttons[points.Count].Location.X, f.Buttons[points.Count].Location.Y));
+                            MessageBox.Show("size exceeded!");
                         }
                         else if (points.Last().Y > pictureBox.Height)
                         {
                             points.Remove(points.Last());
-                            points.Add(new Point(pictureBox.Width / 2, pictureBox.Height - 4));
-                            MessageBox.Show("size exceeded");
+                            points.Add(new Point(f.Buttons[points.Count].Location.X, f.Buttons[points.Count].Location.Y));
+                            MessageBox.Show("size exceeded!");
                         }
                     }
                 }
@@ -188,7 +198,7 @@ namespace ShapeEditor
             textBox.SetData(_figures);
         }
 
-        private void TextBoxKeyPress(object sender, KeyPressEventArgs e)
+        public void TextBoxKeyPress(object sender, KeyPressEventArgs e)
         {
             char keyChar = e.KeyChar;
 
@@ -201,36 +211,23 @@ namespace ShapeEditor
             e.Handled = true;
         }
 
-        private bool Check(Point center, List<Point> points)
-        {
-            if (center.X < 0 || center.Y < 0 || center.X > pictureBox.Width || center.Y > pictureBox.Height)
-            {
-                OnClearButtonClick();
-                MessageBox.Show("The file does not fit!");
-                return true;
-            }
-            for (int c = 0; c < points.Count; c++)
-            {
-                if (points[c].X < 0 || points[c].Y < 0 || points[c].X > pictureBox.Width || points[c].Y > pictureBox.Height)
-                {
-                    OnClearButtonClick();
-                    MessageBox.Show("The file does not fit!");
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private void SettingTextboxInitial(List<string> fileText)
         {
-            if (fileText.First() != "Triangle" && fileText.First() != "Circle" && fileText.First() != "Pentagon" && fileText.First() != "Rect")
-            { 
+            if (fileText.Count == 0)
+            {
+                OnClearButtonClick();
                 MessageBox.Show("The file does not fit!");
                 return;
             }
 
             for (var i = 0; i < fileText.Count; i++)
-            { 
+            {
+                if (fileText[i] != "Triangle" && fileText[i] != "Circle" && fileText[i] != "Pentagon" && fileText[i] != "Rect")
+                {
+                    OnClearButtonClick();
+                    MessageBox.Show("The file does not fit!");
+                    return;
+                }
 
                 if (fileText[i] == "Triangle")
                 {
@@ -246,14 +243,19 @@ namespace ShapeEditor
                             points.Add(new Point(nums[0], nums[1]));
                     }
 
-                    if (Check(center, points)) 
-                        return;
-
                     var t = new Triangle();
                     t.SetData(center, points, pictureBox);
                     t.Updated += () => textBox1.SetData(_figures);
                     _figures.Add(t);
                     textBox1.SetData(_figures);
+
+                    if (false == t.IsValidate(center, points))
+                    {
+                        OnClearButtonClick();
+                        MessageBox.Show("The file does not fit!");
+                        return;
+                    }
+                    i += 4;
                 }
 
                 if (fileText[i] == "Circle")
@@ -270,14 +272,19 @@ namespace ShapeEditor
                             points.Add(new Point(nums[0], nums[1]));
                     }
 
-                    if (Check(center, points))
-                        return;
-
                     var c = new Circle();
                     c.SetData(center, points, pictureBox);
                     c.Updated += () => textBox1.SetData(_figures);
                     _figures.Add(c);
                     textBox1.SetData(_figures);
+
+                    if (false == c.IsValidate(center, points))
+                    {
+                        OnClearButtonClick();
+                        MessageBox.Show("The file does not fit!");
+                        return;
+                    }
+                    i += 2;
                 }
 
                 if (fileText[i] == "Pentagon")
@@ -294,14 +301,19 @@ namespace ShapeEditor
                             points.Add(new Point(nums[0], nums[1]));
                     }
 
-                    if (Check(center, points))
-                        return;
-
                     var p = new Pentagon();
                     p.SetData(center, points, pictureBox);
                     p.Updated += () => textBox1.SetData(_figures);
                     _figures.Add(p);
                     textBox1.SetData(_figures);
+
+                    if (false == p.IsValidate(center, points))
+                    {
+                        OnClearButtonClick();
+                        MessageBox.Show("The file does not fit!");
+                        return;
+                    }
+                    i += 6;
                 }
 
                 if (fileText[i] == "Rect")
@@ -318,14 +330,19 @@ namespace ShapeEditor
                             points.Add(new Point(nums[0], nums[1]));
                     }
 
-                    if (Check(center, points))
-                        return;
-
                     var r = new Rect();
                     r.SetData(center, points, pictureBox);
                     r.Updated += () => textBox1.SetData(_figures);
                     _figures.Add(r);
                     textBox1.SetData(_figures);
+
+                    if (false == r.IsValidate(center, points))
+                    {
+                        OnClearButtonClick();
+                        MessageBox.Show("The file does not fit!");
+                        return;
+                    }
+                    i += 5;
                 }
             }
             MessageBox.Show("File open");

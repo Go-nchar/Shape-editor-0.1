@@ -11,13 +11,13 @@ namespace ShapeEditor
     public static class GraphicsManager
     {
         public static Graphics Graphics { get; private set; }
-        public static SolidBrush Brush { get; private set; }
+        //public static SolidBrush Brush { get; private set; }
         public static Pen Pen { get; private set; }
 
         public static void Init(PictureBox p)
         {
             Graphics = p.CreateGraphics();
-            Brush = new SolidBrush(Color.DarkMagenta);
+            //Brush = new SolidBrush(Color.DarkMagenta);
             Pen = new Pen(Color.Black, 2);
             p.SizeChanged += (s, e) => Graphics = p.CreateGraphics();
         }
