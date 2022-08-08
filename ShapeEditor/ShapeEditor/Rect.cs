@@ -11,12 +11,15 @@ namespace ShapeEditor
     public class Rect : Figure
     {
         private Rectangle _rect;
+        private Point leftUpPoint;
+        private int width;
+        private int height;
 
         public override void Create(PictureBox pictureBox)
         {
-            var leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
-            var width = Random.Next(0, pictureBox.Size.Width - leftUpPoint.X);
-            var height = Random.Next(0, pictureBox.Size.Height - leftUpPoint.Y);
+            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+            width = Random.Next(0, pictureBox.Size.Width - leftUpPoint.X);
+            height = Random.Next(0, pictureBox.Size.Height - leftUpPoint.Y);
             _rect = new Rectangle(leftUpPoint.X + 4, leftUpPoint.Y + 4, width, height);
 
             var points = new List<Point>()
@@ -32,7 +35,8 @@ namespace ShapeEditor
 
         public override void Draw()
         {
-            GraphicsManager.Graphics.DrawRectangle(GraphicsManager.Pen, _rect);
+            GraphicsManager.bufferedGraphics.Graphics.DrawRectangle(GraphicsManager.Pen, _rect);
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()
@@ -57,9 +61,11 @@ namespace ShapeEditor
             CenterButton.SetPictBox(pictureBox);
             CenterButton.Dragged += Update;
 
+            BaseButton b;
+
             foreach (var p in points)
             {
-                var b = new BaseButton();
+                b = new BaseButton();
                 b.Size = new Size(8, 8);
                 b.Location = p;
                 b.SetPictBox(pictureBox);

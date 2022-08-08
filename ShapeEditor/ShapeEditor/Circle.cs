@@ -11,11 +11,13 @@ namespace ShapeEditor
     public class Circle : Figure
     {
         private Rectangle _rect;
+        private Point leftUpPoint;
+        private int diameter;
 
         public override void Create(PictureBox pictureBox)
         {
-            var leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
-            var diameter = Random.Next(0, Math.Min(pictureBox.Size.Width - leftUpPoint.X, pictureBox.Size.Height - leftUpPoint.Y));
+            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+            diameter = Random.Next(0, Math.Min(pictureBox.Size.Width - leftUpPoint.X, pictureBox.Size.Height - leftUpPoint.Y));
             _rect = new Rectangle(leftUpPoint.X + 4, leftUpPoint.Y + 4, diameter, diameter);
 
             SetData(new Point(leftUpPoint.X + diameter / 2, leftUpPoint.Y + diameter / 2),
@@ -24,7 +26,8 @@ namespace ShapeEditor
 
         public override void Draw()
         {
-            GraphicsManager.Graphics.DrawEllipse(GraphicsManager.Pen, _rect);
+            GraphicsManager.bufferedGraphics.Graphics.DrawEllipse(GraphicsManager.Pen, _rect);
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()
@@ -50,9 +53,11 @@ namespace ShapeEditor
             CenterButton.SetPictBox(pictureBox);
             CenterButton.Dragged += Update;
 
+            BaseButton b;
+
             foreach (var p in points)
             {
-                var b = new BaseButton();
+                b = new BaseButton();
                 b.Size = new Size(8, 8);
                 b.Location = p;
                 b.SetPictBox(pictureBox);
@@ -74,6 +79,10 @@ namespace ShapeEditor
         public override bool IsValidate(Point center, List<Point> points)
         {
             var isValidate = true;
+            int y;
+            int x;
+            int radius;
+
             if (center.X < 0 || center.X > PictureBox.Width ||
                 center.Y < 0 || center.Y > PictureBox.Height)
             {
@@ -81,9 +90,9 @@ namespace ShapeEditor
             }
             foreach (var p in points)
             {
-                var y = Math.Abs(p.Y - center.Y);
-                var x = Math.Abs(p.X - center.X);
-                var radius = (int)Math.Sqrt(x * x + y * y);
+                y = Math.Abs(p.Y - center.Y);
+                x = Math.Abs(p.X - center.X);
+                radius = (int)Math.Sqrt(x * x + y * y);
 
                 if (center.X - radius < 0 || center.X + radius > PictureBox.Width ||
                     center.Y - radius < 0 || center.Y + radius > PictureBox.Height)

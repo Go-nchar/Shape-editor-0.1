@@ -13,6 +13,9 @@ namespace ShapeEditor
         private bool _isDragged;
         private Point _downPoint;
         private PictureBox _pictureBox;
+        private Point diff;
+        private int x;
+        private int y;
 
         public event Func<Point, BaseButton, bool> Dragged;
 
@@ -34,18 +37,25 @@ namespace ShapeEditor
             if (!_isDragged)
                 return;
 
-            Point diff = new Point(e.Location.X - _downPoint.X, e.Location.Y - _downPoint.Y);
+             diff = new Point(e.Location.X - _downPoint.X, e.Location.Y - _downPoint.Y);
 
             if (_pictureBox.Width > Location.X + diff.X && _pictureBox.Height > Location.Y + diff.Y)
             {
                 if (Location.X + diff.X > 0 && Location.Y + diff.Y > 0)
                 {
-                    int x = Location.X + diff.X;
-                    int y = Location.Y + diff.Y;
+                    x = Location.X + diff.X;
+                    y = Location.Y + diff.Y;
                     Location = new Point(x, y);
                     _isDragged = Dragged?.Invoke(diff, this) ?? true;
                 }
             }
         }
+
+        /*protected override void OnMouseHover(EventArgs e)
+        {
+            Form1 form = new Form1();
+            //base.OnMouseHover(e);
+            form.OnMouseHover();
+        }*/
     }
 }

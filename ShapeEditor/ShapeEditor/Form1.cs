@@ -16,6 +16,7 @@ namespace ShapeEditor
     {
         private Random _random = new Random();
         private List<Figure> _figures = new List<Figure>();
+        private ToolTip _tooltip = new ToolTip();
 
         public Form1()
         {
@@ -72,39 +73,65 @@ namespace ShapeEditor
 
         public void DrawFigures()
         {
-            GraphicsManager.Clear();
+            GraphicsManager.ClearBuffered();
             foreach (Figure f in _figures)
             {
                 f.Draw();
+
+                _tooltip.RemoveAll();
+
+                _tooltip.SetToolTip(f.CenterButton, f.CenterButton.Location.ToString());
+
+                foreach (var b in f.Buttons)
+                {
+                    _tooltip.SetToolTip(b, b.Location.ToString());
+                }
             }
         }
 
         public void DrawFigures(object sender, EventArgs e)
         {
-            GraphicsManager.Clear();
+            GraphicsManager.ClearBuffered();
             foreach (Figure f in _figures)
             {
                 f.Draw();
+
+                _tooltip.RemoveAll();
+
+                _tooltip.SetToolTip(f.CenterButton, f.CenterButton.Location.ToString());
+
+                foreach (var b in f.Buttons)
+                {
+                    _tooltip.SetToolTip(b, b.Location.ToString());
+                }
             }
         }
 
         private void OnClearButtonClick(object sender, EventArgs e)
         {
-            GraphicsManager.Clear();
+            GraphicsManager.ClearGraphics();
             _figures.Clear();
             pictureBox.Controls.Clear();
             textBox1.Clear();
+            _tooltip.RemoveAll();
         }
 
         private void OnClearButtonClick()
         {
-            GraphicsManager.Clear();
+            GraphicsManager.ClearGraphics();
             _figures.Clear();
             pictureBox.Controls.Clear();
             textBox1.Clear();
+            _tooltip.RemoveAll();
         }
 
         private bool _isUser;
+        private Point center;
+        private List<Point> points;
+        private string str;
+        private int[] nums;
+        private Point centerDiff;
+        private List<Point> pointDiffs;
 
         private void OnTextBoxChanged(object sender, EventArgs e)
         {
@@ -117,15 +144,15 @@ namespace ShapeEditor
 
             foreach (var f in _figures)
             {
-                var center = new Point();
-                var points = new List<Point>();
+                center = new Point();
+                points = new List<Point>();
 
                 foreach (var j in f.Indexes)
                 {
                     if (j == f.Indexes.First())
                         continue;
 
-                    var str = textBox.Lines[j];
+                    str = textBox.Lines[j];
                     
                     if (!regex.IsMatch(str))
                     {
@@ -139,7 +166,7 @@ namespace ShapeEditor
                         }
                     }
 
-                    var nums = str.Split(' ').Select(snum => int.Parse(snum)).ToArray();
+                    nums = str.Split(' ').Select(snum => int.Parse(snum)).ToArray();
                     if (j == f.Indexes[1])
                     {
                         center = new Point(nums[0], nums[1]);
@@ -172,8 +199,8 @@ namespace ShapeEditor
                     }
                 }
 
-                var centerDiff = new Point(center.X - f.CenterButton.Location.X, center.Y - f.CenterButton.Location.Y);
-                var pointDiffs = new List<Point>();
+                centerDiff = new Point(center.X - f.CenterButton.Location.X, center.Y - f.CenterButton.Location.Y);
+                pointDiffs = new List<Point>();
                 for (var k = 0; k < points.Count; k++)
                 {
                     pointDiffs.Add(new Point(points[k].X - f.Buttons[k].Location.X, points[k].Y - f.Buttons[k].Location.Y));

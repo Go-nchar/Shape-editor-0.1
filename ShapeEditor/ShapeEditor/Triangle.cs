@@ -13,9 +13,10 @@ namespace ShapeEditor
         public override void Create(PictureBox pictureBox)
         {
             var points = new List<Point>();
+            Point p;
             for (int i = 0; i < 3; ++i)
             {
-                var p = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+                p = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
                 points.Add(p);
             }
 
@@ -29,7 +30,8 @@ namespace ShapeEditor
             {
                 points.Add(new Point(b.Location.X + 4, b.Location.Y + 4));
             }
-            GraphicsManager.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
+            GraphicsManager.bufferedGraphics.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()
@@ -51,9 +53,11 @@ namespace ShapeEditor
 
             var x = 0;
             var y = 0;
+            BaseButton button;
+
             foreach (var p in points)
             {
-                var button = new BaseButton();
+                button = new BaseButton();
                 button.Size = new Size(8, 8);
                 button.Location = p;
                 x += button.Location.X / 3;

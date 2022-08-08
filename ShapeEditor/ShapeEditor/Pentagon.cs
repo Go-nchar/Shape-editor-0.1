@@ -10,9 +10,10 @@ namespace ShapeEditor
 {
     public class Pentagon : Figure
     {
+        private Point centerPoint;
         public override void Create(PictureBox pictureBox)
         {
-            var centerPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+            centerPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
 
             var radiuses = new List<int>()
             {
@@ -40,7 +41,8 @@ namespace ShapeEditor
             {
                 points.Add(new Point(b.Location.X + 4, b.Location.Y + 4));
             }
-            GraphicsManager.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
+            GraphicsManager.bufferedGraphics.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()
@@ -66,9 +68,11 @@ namespace ShapeEditor
             CenterButton.SetPictBox(pictureBox);
             CenterButton.Dragged += Update;
 
+            BaseButton b;
+
             foreach (var p in points)
             {
-                var b = new BaseButton();
+                b = new BaseButton();
                 b.Size = new Size(8, 8);
                 b.Location = new Point(p.X, p.Y);
                 b.SetPictBox(pictureBox);
