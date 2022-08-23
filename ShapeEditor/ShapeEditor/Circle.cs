@@ -16,8 +16,13 @@ namespace ShapeEditor
 
         public override void Create(PictureBox pictureBox)
         {
-            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
-            diameter = Random.Next(0, Math.Min(pictureBox.Size.Width - leftUpPoint.X, pictureBox.Size.Height - leftUpPoint.Y));
+            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
+            while (Math.Min(pictureBox.Size.Width - 6 - leftUpPoint.X, pictureBox.Size.Height - 6 - leftUpPoint.Y) < 30)
+            {
+                leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
+            }
+
+            diameter = Random.Next(30, Math.Min(pictureBox.Size.Width - 6 - leftUpPoint.X, pictureBox.Size.Height - 6 - leftUpPoint.Y));
             _rect = new Rectangle(leftUpPoint.X + 4, leftUpPoint.Y + 4, diameter, diameter);
 
             SetData(new Point(leftUpPoint.X + diameter / 2, leftUpPoint.Y + diameter / 2),
@@ -33,11 +38,10 @@ namespace ShapeEditor
         public override List<string> GetData()
         {
             var strs = new List<string>();
-            strs.Add("Circle");
-            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y + ' ');
             foreach (var b in Buttons)
             {
-                strs.Add(b.Location.X + " " + b.Location.Y);
+                strs[0] += b.Location.X + " " + b.Location.Y;
             }
             
             return strs;
@@ -94,8 +98,8 @@ namespace ShapeEditor
                 x = Math.Abs(p.X - center.X);
                 radius = (int)Math.Sqrt(x * x + y * y);
 
-                if (center.X - radius < 0 || center.X + radius > PictureBox.Width ||
-                    center.Y - radius < 0 || center.Y + radius > PictureBox.Height)
+                if (center.X - radius < 0 || center.X + radius > PictureBox.Width - 6 ||
+                    center.Y - radius < 0 || center.Y + radius > PictureBox.Height - 6)
                 {
                     isValidate = false;
                 }
@@ -117,8 +121,6 @@ namespace ShapeEditor
 
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
-                    MessageBox.Show("size exceeded!");
-
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
 
                     foreach (var b in Buttons)
@@ -129,10 +131,8 @@ namespace ShapeEditor
                     _rect.X -= diff.X;
                     _rect.Y -= diff.Y;
 
-                    return false;
+                    return true;
                 }
-
-                Program.MainForm.DrawFigures();
             }
             else if (Buttons.Contains(button))
             {
@@ -145,8 +145,6 @@ namespace ShapeEditor
 
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
-                    MessageBox.Show("size exceeded!");
-
                     button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
 
                     y = Math.Abs(button.Location.Y - CenterButton.Location.Y);
@@ -156,12 +154,10 @@ namespace ShapeEditor
                     _rect = new Rectangle(CenterButton.Location.X - radius + 4,
                         CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
 
-                    return false;
+                    return true;
                 }
-
-                Program.MainForm.DrawFigures();
             }
-
+            Program.MainForm.DrawFigures();
             OnUpdate();
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
         }

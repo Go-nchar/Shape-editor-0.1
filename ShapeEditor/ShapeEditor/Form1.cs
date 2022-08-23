@@ -14,7 +14,7 @@ namespace ShapeEditor
 {
     public partial class Form1 : Form
     {
-        private Random _random = new Random();
+        //private Random _random = new Random();
         private List<Figure> _figures = new List<Figure>();
         private ToolTip _tooltip = new ToolTip();
 
@@ -70,41 +70,41 @@ namespace ShapeEditor
             _figures.Add(c);
             textBox1.SetData(_figures);
         }
-
+        
         public void DrawFigures()
         {
+            _tooltip.RemoveAll();
             GraphicsManager.ClearBuffered();
             foreach (Figure f in _figures)
             {
                 f.Draw();
 
-                _tooltip.RemoveAll();
-
-                _tooltip.SetToolTip(f.CenterButton, f.CenterButton.Location.ToString());
+                _tooltip.SetToolTip(f.CenterButton, f.number.ToString());
 
                 foreach (var b in f.Buttons)
                 {
                     _tooltip.SetToolTip(b, b.Location.ToString());
                 }
             }
+            return;
         }
 
         public void DrawFigures(object sender, EventArgs e)
         {
+            _tooltip.RemoveAll();
             GraphicsManager.ClearBuffered();
             foreach (Figure f in _figures)
             {
                 f.Draw();
 
-                _tooltip.RemoveAll();
-
-                _tooltip.SetToolTip(f.CenterButton, f.CenterButton.Location.ToString());
+                _tooltip.SetToolTip(f.CenterButton, f.number.ToString());
 
                 foreach (var b in f.Buttons)
                 {
                     _tooltip.SetToolTip(b, b.Location.ToString());
                 }
             }
+            return;
         }
 
         private void OnClearButtonClick(object sender, EventArgs e)
@@ -126,12 +126,10 @@ namespace ShapeEditor
         }
 
         private bool _isUser;
-        private Point center;
-        private List<Point> points;
-        private string str;
-        private int[] nums;
-        private Point centerDiff;
-        private List<Point> pointDiffs;
+        private Point _center;
+        private List<Point> _points;
+        private Point _centerDiff;
+        private List<Point> _pointDiffs;
 
         private void OnTextBoxChanged(object sender, EventArgs e)
         {
@@ -139,86 +137,69 @@ namespace ShapeEditor
                 return;
 
             _isUser = false;
-
-            Regex regex = new Regex(@"\b\d{1,4} \d{1,4}\b");
-
             foreach (var f in _figures)
             {
-                center = new Point();
-                points = new List<Point>();
+                _center = new Point();
+                _points = new List<Point>();
 
-                foreach (var j in f.Indexes)
+                try
                 {
-                    if (j == f.Indexes.First())
-                        continue;
-
-                    str = textBox.Lines[j];
+                    var str = textBox.Lines[f.Indexe];
+                    var nums = str.Split(' ').Select(snum => int.Parse(snum)).ToArray();
                     
-                    if (!regex.IsMatch(str))
+                    for (int i = 0; i < nums.Length; i += 2)
                     {
-                        if (j == f.Indexes[1])
+                        _center = new Point(nums[0], nums[1]);
+                        if (_center.X > pictureBox.Width)
                         {
-                            str = f.CenterButton.Location.X.ToString() + " " + f.CenterButton.Location.Y.ToString();
+                            _center.X = f.CenterButton.Location.X;
                         }
-                        else
+                        else if (_center.Y > pictureBox.Height)
                         {
-                            str = f.Buttons[points.Count].Location.X.ToString() + " " + f.Buttons[points.Count].Location.Y.ToString();
+                            _center.Y = f.CenterButton.Location.Y;
                         }
-                    }
 
-                    nums = str.Split(' ').Select(snum => int.Parse(snum)).ToArray();
-                    if (j == f.Indexes[1])
-                    {
-                        center = new Point(nums[0], nums[1]);
-                        if (center.X > pictureBox.Width)
+                        if (i > 1)
                         {
-                            center.X = f.CenterButton.Location.X;
-                            MessageBox.Show("size exceeded!");
-                        }
-                        else if (center.Y > pictureBox.Height)
-                        {
-                            center.Y = f.CenterButton.Location.Y;
-                            MessageBox.Show("size exceeded!");
-                        }
-                    }
-                    else
-                    {
-                        points.Add(new Point(nums[0], nums[1]));
-                        if (points.Last().X > pictureBox.Width)
-                        {
-                            points.Remove(points.Last());
-                            points.Add(new Point(f.Buttons[points.Count].Location.X, f.Buttons[points.Count].Location.Y));
-                            MessageBox.Show("size exceeded!");
-                        }
-                        else if (points.Last().Y > pictureBox.Height)
-                        {
-                            points.Remove(points.Last());
-                            points.Add(new Point(f.Buttons[points.Count].Location.X, f.Buttons[points.Count].Location.Y));
-                            MessageBox.Show("size exceeded!");
+                            _points.Add(new Point(nums[i], nums[i + 1]));
+                            if (_points.Last().X > pictureBox.Width)
+                            {
+                                _points.Remove(_points.Last());
+                                _points.Add(new Point(f.Buttons[_points.Count].Location.X, f.Buttons[_points.Count].Location.Y));
+                            }
+                            else if (_points.Last().Y > pictureBox.Height)
+                            {
+                                _points.Remove(_points.Last());
+                                _points.Add(new Point(f.Buttons[_points.Count].Location.X, f.Buttons[_points.Count].Location.Y));
+                            }
                         }
                     }
                 }
-
-                centerDiff = new Point(center.X - f.CenterButton.Location.X, center.Y - f.CenterButton.Location.Y);
-                pointDiffs = new List<Point>();
-                for (var k = 0; k < points.Count; k++)
+                catch
                 {
-                    pointDiffs.Add(new Point(points[k].X - f.Buttons[k].Location.X, points[k].Y - f.Buttons[k].Location.Y));
+                    textBox.SetData(_figures);
                 }
 
-                if (centerDiff.X != 0 || centerDiff.Y != 0)
+                _centerDiff = new Point(_center.X - f.CenterButton.Location.X, _center.Y - f.CenterButton.Location.Y);
+                _pointDiffs = new List<Point>();
+                for (var k = 0; k < _points.Count; k++)
                 {
-                    f.CenterButton.Location = center;
-                    f.Update(centerDiff, f.CenterButton);
+                    _pointDiffs.Add(new Point(_points[k].X - f.Buttons[k].Location.X, _points[k].Y - f.Buttons[k].Location.Y));
                 }
 
-                for (var p = 0; p < pointDiffs.Count; p++)
+                if (_centerDiff.X != 0 || _centerDiff.Y != 0)
                 {
-                    if (pointDiffs[p].X == 0 && pointDiffs[p].Y == 0)
+                    f.CenterButton.Location = _center;
+                    f.Update(_centerDiff, f.CenterButton);
+                }
+
+                for (var p = 0; p < _pointDiffs.Count; p++)
+                {
+                    if (_pointDiffs[p].X == 0 && _pointDiffs[p].Y == 0)
                         continue;
 
-                    f.Buttons[p].Location = points[p];
-                    f.Update(pointDiffs[p], f.Buttons[p]);
+                    f.Buttons[p].Location = _points[p];
+                    f.Update(_pointDiffs[p], f.Buttons[p]);
                 }
             }
 
@@ -229,7 +210,7 @@ namespace ShapeEditor
         {
             char keyChar = e.KeyChar;
 
-            if (char.IsDigit(keyChar) || keyChar == '\b' || keyChar == ' ')
+            if (char.IsDigit(keyChar) || keyChar == '\b')
             {
                 _isUser = true;
                 return;
@@ -261,28 +242,33 @@ namespace ShapeEditor
                     var center = new Point();
                     var points = new List<Point>();
 
-                    for (int j = i + 1; j < i + 5; j++)
+                    for (int j = i + 2; j < i + 2 + int.Parse(fileText[i + 1]); j++)
                     {
                         var nums = fileText[j].Split(' ').Select(snum => int.Parse(snum)).ToArray();
-                        if (j == i + 1)
+                        for (int k = 0; k < nums.Length; k += 2)
+                        {
                             center = new Point(nums[0], nums[1]);
-                        else
-                            points.Add(new Point(nums[0], nums[1]));
-                    }
+                            if (k > 1)
+                            {
+                                points.Add(new Point(nums[k], nums[k + 1]));
+                            }
+                        }
 
-                    var t = new Triangle();
-                    t.SetData(center, points, pictureBox);
-                    t.Updated += () => textBox1.SetData(_figures);
-                    _figures.Add(t);
-                    textBox1.SetData(_figures);
+                        var t = new Triangle();
+                        t.SetData(center, points, pictureBox);
+                        t.Updated += () => textBox1.SetData(_figures);
+                        _figures.Add(t);
+                        textBox1.SetData(_figures);
 
-                    if (false == t.IsValidate(center, points))
-                    {
-                        OnClearButtonClick();
-                        MessageBox.Show("The file does not fit!");
-                        return;
+                        if (false == t.IsValidate(center, points))
+                        {
+                            OnClearButtonClick();
+                            MessageBox.Show("The file does not fit!");
+                            return;
+                        }
+                        points.Clear();
                     }
-                    i += 4;
+                    i += int.Parse(fileText[i + 1]) + 1;
                 }
 
                 if (fileText[i] == "Circle")
@@ -290,28 +276,33 @@ namespace ShapeEditor
                     var center = new Point();
                     var points = new List<Point>();
 
-                    for (int j = i + 1; j < i + 3; j++)
+                    for (int j = i + 2; j < i + 2 + int.Parse(fileText[i + 1]); j++)
                     {
                         var nums = fileText[j].Split(' ').Select(snum => int.Parse(snum)).ToArray();
-                        if (j == i + 1)
+                        for (int k = 0; k < nums.Length; k += 2)
+                        {
                             center = new Point(nums[0], nums[1]);
-                        else
-                            points.Add(new Point(nums[0], nums[1]));
-                    }
+                            if (k > 1)
+                            {
+                                points.Add(new Point(nums[k], nums[k + 1]));
+                            }
+                        }
 
-                    var c = new Circle();
-                    c.SetData(center, points, pictureBox);
-                    c.Updated += () => textBox1.SetData(_figures);
-                    _figures.Add(c);
-                    textBox1.SetData(_figures);
+                        var c = new Circle();
+                        c.SetData(center, points, pictureBox);
+                        c.Updated += () => textBox1.SetData(_figures);
+                        _figures.Add(c);
+                        textBox1.SetData(_figures);
 
-                    if (false == c.IsValidate(center, points))
-                    {
-                        OnClearButtonClick();
-                        MessageBox.Show("The file does not fit!");
-                        return;
+                        if (false == c.IsValidate(center, points))
+                        {
+                            OnClearButtonClick();
+                            MessageBox.Show("The file does not fit!");
+                            return;
+                        }
+                        points.Clear();
                     }
-                    i += 2;
+                    i += int.Parse(fileText[i + 1]) + 1;
                 }
 
                 if (fileText[i] == "Pentagon")
@@ -319,28 +310,33 @@ namespace ShapeEditor
                     var center = new Point();
                     var points = new List<Point>();
 
-                    for (int j = i + 1; j < i + 7; j++)
+                    for (int j = i + 2; j < i + 2 + int.Parse(fileText[i + 1]); j++)
                     {
                         var nums = fileText[j].Split(' ').Select(snum => int.Parse(snum)).ToArray();
-                        if (j == i + 1)
+                        for (int k = 0; k < nums.Length; k += 2)
+                        {
                             center = new Point(nums[0], nums[1]);
-                        else
-                            points.Add(new Point(nums[0], nums[1]));
-                    }
+                            if (k > 1)
+                            {
+                                points.Add(new Point(nums[k], nums[k + 1]));
+                            }
+                        }
 
-                    var p = new Pentagon();
-                    p.SetData(center, points, pictureBox);
-                    p.Updated += () => textBox1.SetData(_figures);
-                    _figures.Add(p);
-                    textBox1.SetData(_figures);
+                        var p = new Pentagon();
+                        p.SetData(center, points, pictureBox);
+                        p.Updated += () => textBox1.SetData(_figures);
+                        _figures.Add(p);
+                        textBox1.SetData(_figures);
 
-                    if (false == p.IsValidate(center, points))
-                    {
-                        OnClearButtonClick();
-                        MessageBox.Show("The file does not fit!");
-                        return;
+                        if (false == p.IsValidate(center, points))
+                        {
+                            OnClearButtonClick();
+                            MessageBox.Show("The file does not fit!");
+                            return;
+                        }
+                        points.Clear();
                     }
-                    i += 6;
+                    i += int.Parse(fileText[i + 1]) + 1;
                 }
 
                 if (fileText[i] == "Rect")
@@ -348,28 +344,33 @@ namespace ShapeEditor
                     var center = new Point();
                     var points = new List<Point>();
 
-                    for (int j = i + 1; j < i + 6; j++)
+                    for (int j = i + 2; j < i + 2 + int.Parse(fileText[i + 1]); j++)
                     {
                         var nums = fileText[j].Split(' ').Select(snum => int.Parse(snum)).ToArray();
-                        if (j == i + 1)
+                        for (int k = 0; k < nums.Length; k += 2)
+                        {
                             center = new Point(nums[0], nums[1]);
-                        else
-                            points.Add(new Point(nums[0], nums[1]));
-                    }
+                            if (k > 1)
+                            {
+                                points.Add(new Point(nums[k], nums[k + 1]));
+                            }
+                        }
 
-                    var r = new Rect();
-                    r.SetData(center, points, pictureBox);
-                    r.Updated += () => textBox1.SetData(_figures);
-                    _figures.Add(r);
-                    textBox1.SetData(_figures);
+                        var r = new Rect();
+                        r.SetData(center, points, pictureBox);
+                        r.Updated += () => textBox1.SetData(_figures);
+                        _figures.Add(r);
+                        textBox1.SetData(_figures);
 
-                    if (false == r.IsValidate(center, points))
-                    {
-                        OnClearButtonClick();
-                        MessageBox.Show("The file does not fit!");
-                        return;
+                        if (false == r.IsValidate(center, points))
+                        {
+                            OnClearButtonClick();
+                            MessageBox.Show("The file does not fit!");
+                            return;
+                        }
+                        points.Clear();
                     }
-                    i += 5;
+                    i += int.Parse(fileText[i + 1]) + 1;
                 }
             }
             MessageBox.Show("File open");
@@ -404,6 +405,7 @@ namespace ShapeEditor
             }
             catch
             {
+                OnClearButtonClick();
                 MessageBox.Show("The file does not fit!");
                 return;
             }

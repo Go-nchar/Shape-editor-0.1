@@ -47,15 +47,9 @@ namespace ShapeEditor
                     y = Location.Y + diff.Y;
                     Location = new Point(x, y);
                     _isDragged = Dragged?.Invoke(diff, this) ?? true;
+                    
                 }
             }
         }
-
-        /*protected override void OnMouseHover(EventArgs e)
-        {
-            Form1 form = new Form1();
-            //base.OnMouseHover(e);
-            form.OnMouseHover();
-        }*/
     }
 }

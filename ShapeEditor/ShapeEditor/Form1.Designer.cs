@@ -52,7 +52,7 @@ namespace ShapeEditor
             this.pictureBox.BackColor = System.Drawing.Color.LightBlue;
             this.pictureBox.Location = new System.Drawing.Point(12, 38);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(759, 539);
+            this.pictureBox.Size = new System.Drawing.Size(694, 539);
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
             this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.DrawFigures);
@@ -72,11 +72,11 @@ namespace ShapeEditor
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox1.HideSelection = false;
-            this.textBox1.Location = new System.Drawing.Point(777, 38);
+            this.textBox1.Location = new System.Drawing.Point(712, 38);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(221, 539);
+            this.textBox1.Size = new System.Drawing.Size(286, 539);
             this.textBox1.TabIndex = 2;
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBoxKeyPress);
             this.textBox1.Leave += new System.EventHandler(this.OnTextBoxChanged);

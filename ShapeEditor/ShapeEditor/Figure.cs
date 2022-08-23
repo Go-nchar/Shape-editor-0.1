@@ -15,7 +15,9 @@ namespace ShapeEditor
         public BaseButton CenterButton;
         protected PictureBox PictureBox;
 
-        public List<int> Indexes = new List<int>();
+        public int Indexe;
+
+        public int number;
 
         public event Action Updated;
 

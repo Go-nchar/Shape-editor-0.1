@@ -13,7 +13,7 @@ namespace ShapeEditor
         private Point centerPoint;
         public override void Create(PictureBox pictureBox)
         {
-            centerPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
+            centerPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
 
             var radiuses = new List<int>()
             {
@@ -23,7 +23,20 @@ namespace ShapeEditor
                 pictureBox.Size.Height - centerPoint.Y
             };
 
-            var radius = Random.Next(0, radiuses.Min());
+            while (radiuses.Min() < 30)
+            {
+                radiuses.Clear();
+
+                centerPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
+
+                radiuses.AddRange(new[]{
+                centerPoint.X,
+                centerPoint.Y,
+                pictureBox.Size.Width - centerPoint.X,
+                pictureBox.Size.Height - centerPoint.Y});
+            }
+
+            var radius = Random.Next(30, radiuses.Min());
 
             var angle = 2.0 * Math.PI / 5.0;
             IEnumerable<Point> points = Enumerable.Range(0, 5).Select(i => Point.Add((Point)centerPoint,
@@ -48,11 +61,18 @@ namespace ShapeEditor
         public override List<string> GetData()
         {
             var strs = new List<string>();
-            strs.Add("Pentagon");
             strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            string x;
+            string y;
+            string xy;
+
             foreach (var b in Buttons)
             {
-                strs.Add(b.Location.X + " " + b.Location.Y);
+                x = " " + b.Location.X.ToString();
+                y = b.Location.Y.ToString();
+                xy = x + " " + y;
+
+                strs[0] += xy;
             }
 
             return strs;
@@ -95,8 +115,6 @@ namespace ShapeEditor
 
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
-                    MessageBox.Show("size exceeded!");
-
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
 
                     foreach (var b in Buttons)
@@ -104,10 +122,8 @@ namespace ShapeEditor
                         b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
                     }
 
-                    return false;
+                    return true;
                 }
-
-                Program.MainForm.DrawFigures();
             }
             else if (Buttons.Contains(button))
             {
@@ -123,8 +139,6 @@ namespace ShapeEditor
 
                 if (false == IsValidate(CenterButton.Location, points.ConvertAll(new Converter<PointF, Point>(p => new Point((int)p.X, (int)p.Y)))))
                 {
-                    MessageBox.Show("size exceeded!");
-
                     button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
 
                     x = Math.Abs(button.Location.X - CenterButton.Location.X);
@@ -141,17 +155,15 @@ namespace ShapeEditor
                         Buttons[i].Location = new Point((int)points[i].X, (int)points[i].Y);
                     }
 
-                    return false;
+                    return true;
                 }
 
                 for (var i = 0; i < points.Count; i++)
                 {
                     Buttons[i].Location = new Point((int)points[i].X, (int)points[i].Y);
                 }
-
-                Program.MainForm.DrawFigures();
             }
-
+            Program.MainForm.DrawFigures();
             OnUpdate();
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
         }
@@ -166,7 +178,7 @@ namespace ShapeEditor
             }
             foreach (var p in points)
             {
-                if (p.X < 0 || p.X > PictureBox.Width || p.Y < 0 || p.Y > PictureBox.Height)
+                if (p.X < 0 || p.X > PictureBox.Width - 6 || p.Y < 0 || p.Y > PictureBox.Height - 6)
                 {
                     isValidate = false;
                 }

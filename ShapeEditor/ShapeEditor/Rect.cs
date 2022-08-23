@@ -17,10 +17,15 @@ namespace ShapeEditor
 
         public override void Create(PictureBox pictureBox)
         {
-            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width), Random.Next(0, pictureBox.Size.Height));
-            width = Random.Next(0, pictureBox.Size.Width - leftUpPoint.X);
-            height = Random.Next(0, pictureBox.Size.Height - leftUpPoint.Y);
-            _rect = new Rectangle(leftUpPoint.X + 4, leftUpPoint.Y + 4, width, height);
+            leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
+
+            while (pictureBox.Size.Width - 6 - leftUpPoint.X < 50 || pictureBox.Size.Height - 6 - leftUpPoint.Y < 50)
+            {
+                leftUpPoint = new Point(Random.Next(0, pictureBox.Size.Width - 6), Random.Next(0, pictureBox.Size.Height - 6));
+            }
+
+            width = Random.Next(50, pictureBox.Size.Width - 6 - leftUpPoint.X);
+            height = Random.Next(50, pictureBox.Size.Height - 6 - leftUpPoint.Y);
 
             var points = new List<Point>()
             {
@@ -30,7 +35,9 @@ namespace ShapeEditor
                 new Point(leftUpPoint.X, leftUpPoint.Y + height)
             };
 
-            SetData(new Point(leftUpPoint.X + width / 2, leftUpPoint.Y + height / 2), points, pictureBox);
+            Point centerPoint = new Point(leftUpPoint.X + width / 2, leftUpPoint.Y + height / 2);
+
+            SetData(centerPoint, points, pictureBox);
         }
 
         public override void Draw()
@@ -42,11 +49,18 @@ namespace ShapeEditor
         public override List<string> GetData()
         {
             var strs = new List<string>();
-            strs.Add("Rect");
             strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
+            string x;
+            string y;
+            string xy;
+
             foreach (var b in Buttons)
             {
-                strs.Add(b.Location.X + " " + b.Location.Y);
+                x = " " + b.Location.X.ToString();
+                y = b.Location.Y.ToString();
+                xy = x + " " + y;
+
+                strs[0] += xy;
             }
 
             return strs;
@@ -103,8 +117,6 @@ namespace ShapeEditor
 
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
-                    MessageBox.Show("size exceeded!");
-
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
 
                     foreach (var b in Buttons)
@@ -115,10 +127,8 @@ namespace ShapeEditor
                     _rect.X -= diff.X;
                     _rect.Y -= diff.Y;
 
-                    return false;
+                    return true;
                 }
-
-                Program.MainForm.DrawFigures();
             }
             else if (Buttons.Contains(button))
             {
@@ -155,11 +165,8 @@ namespace ShapeEditor
                 var leftUpButton = new Point(CenterButton.Location.X - width / 2, CenterButton.Location.Y - height / 2);
 
                 _rect = new Rectangle(leftUpButton.X + 4, leftUpButton.Y + 4, width, height);
-
-                Program.MainForm.DrawFigures();
             }
-
-
+            Program.MainForm.DrawFigures();
             OnUpdate();
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
         }
@@ -174,7 +181,7 @@ namespace ShapeEditor
             }
             foreach (var p in points)
             {
-                if (p.X < 0 || p.Y < 0 || p.X > PictureBox.Width || p.Y > PictureBox.Height)
+                if (p.X < 0 || p.Y < 0 || p.X > PictureBox.Width - 6 || p.Y > PictureBox.Height - 6)
                 {
                     isValidate = false;
                 }
