@@ -13,6 +13,7 @@ namespace ShapeEditor
         protected Random Random = new Random();
         public List<BaseButton> Buttons = new List<BaseButton>();
         public BaseButton CenterButton;
+        public TextBox textBox;
         protected PictureBox PictureBox;
 
         public int Indexe;

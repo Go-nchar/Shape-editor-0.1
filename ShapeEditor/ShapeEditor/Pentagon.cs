@@ -36,7 +36,7 @@ namespace ShapeEditor
                 pictureBox.Size.Height - centerPoint.Y});
             }
 
-            var radius = Random.Next(30, radiuses.Min());
+            int radius = Random.Next(30, radiuses.Min());
 
             var angle = 2.0 * Math.PI / 5.0;
             IEnumerable<Point> points = Enumerable.Range(0, 5).Select(i => Point.Add((Point)centerPoint,
@@ -49,7 +49,7 @@ namespace ShapeEditor
 
         public override void Draw()
         {
-            var points = new List<Point>();
+            List<Point> points = new List<Point>();
             foreach (var b in Buttons)
             {
                 points.Add(new Point(b.Location.X + 4, b.Location.Y + 4));
@@ -60,19 +60,14 @@ namespace ShapeEditor
 
         public override List<string> GetData()
         {
-            var strs = new List<string>();
-            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y);
-            string x;
-            string y;
-            string xy;
+            List<string> strs = new List<string>
+            {
+                CenterButton.Location.X + " " + CenterButton.Location.Y
+            };
 
             foreach (var b in Buttons)
             {
-                x = " " + b.Location.X.ToString();
-                y = b.Location.Y.ToString();
-                xy = x + " " + y;
-
-                strs[0] += xy;
+                strs[0] += " " + b.Location.X.ToString() + " " + b.Location.Y.ToString();
             }
 
             return strs;
@@ -90,11 +85,20 @@ namespace ShapeEditor
 
             BaseButton b;
 
+            textBox = new TextBox
+            {
+                Size = new Size(20, 5),
+                Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8),
+                ReadOnly = true
+            };
+
             foreach (var p in points)
             {
-                b = new BaseButton();
-                b.Size = new Size(8, 8);
-                b.Location = new Point(p.X, p.Y);
+                b = new BaseButton
+                {
+                    Size = new Size(8, 8),
+                    Location = new Point(p.X, p.Y)
+                };
                 b.SetPictBox(pictureBox);
                 b.Dragged += Update;
                 Buttons.Add(b);
@@ -102,12 +106,15 @@ namespace ShapeEditor
 
             pictureBox.Controls.Add(CenterButton);
             pictureBox.Controls.AddRange(Buttons.ToArray());
+            pictureBox.Controls.Add(textBox);
         }
 
         public override bool Update(Point diff, BaseButton button)
         {
             if (button == CenterButton)
             {
+                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+
                 foreach (var b in Buttons)
                 {
                     b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
@@ -116,6 +123,7 @@ namespace ShapeEditor
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                     foreach (var b in Buttons)
                     {
@@ -127,8 +135,8 @@ namespace ShapeEditor
             }
             else if (Buttons.Contains(button))
             {
-                var x = Math.Abs(CenterButton.Location.X - button.Location.X);
-                var y = Math.Abs(CenterButton.Location.Y - button.Location.Y);
+                int x = Math.Abs(CenterButton.Location.X - button.Location.X);
+                int y = Math.Abs(CenterButton.Location.Y - button.Location.Y);
                 var radius = Math.Sqrt(x * x + y * y);
 
                 var angle = 2.0 * Math.PI / 5.0;
@@ -136,6 +144,8 @@ namespace ShapeEditor
                     new SizeF(
                     (float)(Math.Sin(i * angle) * radius),
                     (float)(Math.Cos(i * angle) * radius)))).ToList();
+
+                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                 if (false == IsValidate(CenterButton.Location, points.ConvertAll(new Converter<PointF, Point>(p => new Point((int)p.X, (int)p.Y)))))
                 {
@@ -149,6 +159,8 @@ namespace ShapeEditor
                        new SizeF(
                        (float)(Math.Sin(i * angle) * radius),
                        (float)(Math.Cos(i * angle) * radius)))).ToList();
+
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                     for (var i = 0; i < points.Count; i++)
                     {
@@ -170,7 +182,7 @@ namespace ShapeEditor
 
         public override bool IsValidate(Point center, List<Point> points)
         {
-            var isValidate = true;
+            bool isValidate = true;
             if (center.X < 0 || center.X > PictureBox.Width ||
                 center.Y < 0 || center.Y > PictureBox.Height)
             {

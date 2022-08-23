@@ -14,7 +14,6 @@ namespace ShapeEditor
 {
     public partial class Form1 : Form
     {
-        //private Random _random = new Random();
         private List<Figure> _figures = new List<Figure>();
         private ToolTip _tooltip = new ToolTip();
 
@@ -79,7 +78,8 @@ namespace ShapeEditor
             {
                 f.Draw();
 
-                _tooltip.SetToolTip(f.CenterButton, f.number.ToString());
+                //_tooltip.SetToolTip(f.CenterButton, f.number.ToString());
+                f.textBox.Text = f.number.ToString();
 
                 foreach (var b in f.Buttons)
                 {
@@ -97,7 +97,8 @@ namespace ShapeEditor
             {
                 f.Draw();
 
-                _tooltip.SetToolTip(f.CenterButton, f.number.ToString());
+                //_tooltip.SetToolTip(f.CenterButton, f.number.ToString());
+                f.textBox.Text = f.number.ToString();
 
                 foreach (var b in f.Buttons)
                 {
@@ -180,11 +181,18 @@ namespace ShapeEditor
                     textBox.SetData(_figures);
                 }
 
-                _centerDiff = new Point(_center.X - f.CenterButton.Location.X, _center.Y - f.CenterButton.Location.Y);
+                try
+                {
+                    _centerDiff = new Point(_center.X - f.CenterButton.Location.X, _center.Y - f.CenterButton.Location.Y);
                 _pointDiffs = new List<Point>();
                 for (var k = 0; k < _points.Count; k++)
                 {
                     _pointDiffs.Add(new Point(_points[k].X - f.Buttons[k].Location.X, _points[k].Y - f.Buttons[k].Location.Y));
+                }
+                }
+                catch
+                {
+                    textBox.SetData(_figures);
                 }
 
                 if (_centerDiff.X != 0 || _centerDiff.Y != 0)

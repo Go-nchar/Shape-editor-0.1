@@ -37,11 +37,14 @@ namespace ShapeEditor
 
         public override List<string> GetData()
         {
-            var strs = new List<string>();
-            strs.Add(CenterButton.Location.X + " " + CenterButton.Location.Y + ' ');
+            List<string> strs = new List<string>
+            {
+                CenterButton.Location.X + " " + CenterButton.Location.Y
+            };
+
             foreach (var b in Buttons)
             {
-                strs[0] += b.Location.X + " " + b.Location.Y;
+                strs[0] += " " + b.Location.X + " " + b.Location.Y;
             }
             
             return strs;
@@ -59,11 +62,20 @@ namespace ShapeEditor
 
             BaseButton b;
 
+            textBox = new TextBox
+            {
+                Size = new Size(20, 5),
+                Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8),
+                ReadOnly = true
+            };
+
             foreach (var p in points)
             {
-                b = new BaseButton();
-                b.Size = new Size(8, 8);
-                b.Location = p;
+                b = new BaseButton
+                {
+                    Size = new Size(8, 8),
+                    Location = p
+                };
                 b.SetPictBox(pictureBox);
                 b.Dragged += Update;
                 Buttons.Add(b);
@@ -71,6 +83,7 @@ namespace ShapeEditor
 
             pictureBox.Controls.Add(CenterButton);
             pictureBox.Controls.AddRange(Buttons.ToArray());
+            pictureBox.Controls.Add(textBox);
 
             var y = Math.Abs(Buttons[0].Location.Y - CenterButton.Location.Y);
             var x = Math.Abs(Buttons[0].Location.X - CenterButton.Location.X);
@@ -111,6 +124,8 @@ namespace ShapeEditor
         {
             if (button == CenterButton)
             {
+                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+
                 foreach (var b in Buttons)
                 {
                     b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
@@ -122,6 +137,7 @@ namespace ShapeEditor
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                     foreach (var b in Buttons)
                     {
@@ -143,6 +159,8 @@ namespace ShapeEditor
                 _rect = new Rectangle(CenterButton.Location.X - radius + 4, 
                     CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
 
+                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
                     button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
@@ -153,6 +171,8 @@ namespace ShapeEditor
 
                     _rect = new Rectangle(CenterButton.Location.X - radius + 4,
                         CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
+
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                     return true;
                 }
