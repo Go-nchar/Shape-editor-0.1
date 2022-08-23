@@ -55,7 +55,6 @@ namespace ShapeEditor
                 points.Add(new Point(b.Location.X + 4, b.Location.Y + 4));
             }
             GraphicsManager.bufferedGraphics.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
-            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()

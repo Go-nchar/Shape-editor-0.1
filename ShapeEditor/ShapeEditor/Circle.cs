@@ -32,7 +32,6 @@ namespace ShapeEditor
         public override void Draw()
         {
             GraphicsManager.bufferedGraphics.Graphics.DrawEllipse(GraphicsManager.Pen, _rect);
-            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()

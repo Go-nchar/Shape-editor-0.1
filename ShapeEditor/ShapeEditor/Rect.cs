@@ -43,7 +43,6 @@ namespace ShapeEditor
         public override void Draw()
         {
             GraphicsManager.bufferedGraphics.Graphics.DrawRectangle(GraphicsManager.Pen, _rect);
-            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()

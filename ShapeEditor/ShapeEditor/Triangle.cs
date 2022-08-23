@@ -57,7 +57,6 @@ namespace ShapeEditor
                 points.Add(new Point(b.Location.X + 4, b.Location.Y + 4));
             }
             GraphicsManager.bufferedGraphics.Graphics.DrawPolygon(GraphicsManager.Pen, points.ToArray());
-            GraphicsManager.bufferedGraphics.Render();
         }
 
         public override List<string> GetData()
@@ -131,7 +130,7 @@ namespace ShapeEditor
                 if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
                 {
                     CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location .Y - diff.Y);
-                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+                    textBox.Location = new Point(textBox.Location.X - diff.X, textBox.Location.Y - diff.Y);
 
                     foreach (var b in Buttons)
                     {

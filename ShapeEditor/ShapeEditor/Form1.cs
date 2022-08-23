@@ -86,7 +86,8 @@ namespace ShapeEditor
                     _tooltip.SetToolTip(b, b.Location.ToString());
                 }
             }
-            return;
+
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         public void DrawFigures(object sender, EventArgs e)
@@ -105,7 +106,8 @@ namespace ShapeEditor
                     _tooltip.SetToolTip(b, b.Location.ToString());
                 }
             }
-            return;
+
+            GraphicsManager.bufferedGraphics.Render();
         }
 
         private void OnClearButtonClick(object sender, EventArgs e)
