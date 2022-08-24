@@ -92,6 +92,46 @@ namespace ShapeEditor
                     CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
         }
 
+        public override bool Update(Point diff, Point location, BaseButton button)
+        {
+            if (button == CenterButton)
+            {
+                var locations = new List<Point>();
+                locations.AddRange(Buttons.Select(b => new Point(b.Location.X + diff.X, b.Location.Y + diff.Y)));
+
+                if (IsValidate(location, locations))
+                {
+                    CenterButton.Location = location;
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+
+                    foreach (var b in Buttons)
+                    {
+                        b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
+                    }
+
+                    _rect.X += diff.X;
+                    _rect.Y += diff.Y;
+                }
+            }
+            else if (Buttons.Contains(button))
+            {
+                if (IsValidate(CenterButton.Location, location))
+                {
+                    button.Location = location;
+
+                    var y = Math.Abs(location.Y - CenterButton.Location.Y);
+                    var x = Math.Abs(location.X - CenterButton.Location.X);
+                    var radius = (int)Math.Sqrt(x * x + y * y);
+
+                    _rect = new Rectangle(CenterButton.Location.X - radius + 4,
+                        CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
+                }
+            }
+            Program.MainForm.DrawFigures();
+            OnUpdate();
+            return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
+        }
+
         public override bool IsValidate(Point center, List<Point> points)
         {
             var isValidate = true;
@@ -119,66 +159,14 @@ namespace ShapeEditor
             return isValidate;
         }
 
-        public override bool Update(Point diff, BaseButton button)
+        public bool IsValidate(Point center, Point point)
         {
-            if (button == CenterButton)
-            {
-                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+            int y = Math.Abs(point.Y - center.Y);
+            int x = Math.Abs(point.X - center.X);
+            int radius = (int)Math.Sqrt(x * x + y * y);
 
-                foreach (var b in Buttons)
-                {
-                    b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
-                }
-
-                _rect.X += diff.X;
-                _rect.Y += diff.Y;
-
-                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
-                {
-                    CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
-                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
-
-                    foreach (var b in Buttons)
-                    {
-                        b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
-                    }
-
-                    _rect.X -= diff.X;
-                    _rect.Y -= diff.Y;
-
-                    return true;
-                }
-            }
-            else if (Buttons.Contains(button))
-            {
-                var y = Math.Abs(button.Location.Y - CenterButton.Location.Y);
-                var x = Math.Abs(button.Location.X - CenterButton.Location.X);
-                var radius = (int) Math.Sqrt(x * x + y * y);
-
-                _rect = new Rectangle(CenterButton.Location.X - radius + 4, 
-                    CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
-
-                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
-
-                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
-                {
-                    button.Location = new Point(button.Location.X - diff.X, button.Location.Y - diff.Y);
-
-                    y = Math.Abs(button.Location.Y - CenterButton.Location.Y);
-                    x = Math.Abs(button.Location.X - CenterButton.Location.X);
-                    radius = (int)Math.Sqrt(x * x + y * y);
-
-                    _rect = new Rectangle(CenterButton.Location.X - radius + 4,
-                        CenterButton.Location.Y - radius + 4, radius * 2, radius * 2);
-
-                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
-
-                    return true;
-                }
-            }
-            Program.MainForm.DrawFigures();
-            OnUpdate();
-            return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
+            return !(center.X - radius < 0 || center.X + radius > PictureBox.Width - 6 ||
+                center.Y - radius < 0 || center.Y + radius > PictureBox.Height - 6);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ShapeEditor
 
         public abstract void Create(PictureBox pictureBox);
 
-        public abstract bool Update(Point diff, BaseButton button);
+        public abstract bool Update(Point diff, Point location, BaseButton button);
 
         public abstract void Draw();
 

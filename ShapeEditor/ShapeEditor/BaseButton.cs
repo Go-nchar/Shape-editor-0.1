@@ -16,8 +16,9 @@ namespace ShapeEditor
         private Point diff;
         private int x;
         private int y;
+        private Point _loc;
 
-        public event Func<Point, BaseButton, bool> Dragged;
+        public event Func<Point, Point, BaseButton, bool> Dragged;
 
         public void SetPictBox(PictureBox pBox) => _pictureBox = pBox;
 
@@ -39,17 +40,18 @@ namespace ShapeEditor
 
              diff = new Point(e.Location.X - _downPoint.X, e.Location.Y - _downPoint.Y);
 
-            if (_pictureBox.Width > Location.X + diff.X && _pictureBox.Height > Location.Y + diff.Y)
+            
+            if (_pictureBox.Width - 6 > Location.X + diff.X && _pictureBox.Height - 6 > Location.Y + diff.Y)
             {
                 if (Location.X + diff.X > 0 && Location.Y + diff.Y > 0)
                 {
                     x = Location.X + diff.X;
                     y = Location.Y + diff.Y;
-                    Location = new Point(x, y);
-                    _isDragged = Dragged?.Invoke(diff, this) ?? true;
-                    
+                    _loc = new Point(x, y);
+                    _isDragged = Dragged?.Invoke(diff, _loc, this) ?? true;
                 }
             }
+            
         }
     }
 }

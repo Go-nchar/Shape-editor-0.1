@@ -107,74 +107,74 @@ namespace ShapeEditor
             _rect = new Rectangle(leftUpButton.X + 4, leftUpButton.Y + 4, width, height);
         }
 
-        public override bool Update(Point diff, BaseButton button)
+        public override bool Update(Point diff, Point location, BaseButton button)
         {
             if (button == CenterButton)
             {
-                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+                var locations = new List<Point>();
+                locations.AddRange(Buttons.Select(b => new Point(b.Location.X + diff.X, b.Location.Y + diff.Y)));
 
-                foreach (var b in Buttons)
+                if (IsValidate(location, locations))
                 {
-                    b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
-                }
+                    CenterButton.Location = location;
 
-                _rect.X += diff.X;
-                _rect.Y += diff.Y;
-
-                if (false == IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList()))
-                {
-                    CenterButton.Location = new Point(CenterButton.Location.X - diff.X, CenterButton.Location.Y - diff.Y);
                     textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
 
                     foreach (var b in Buttons)
                     {
-                        b.Location = new Point(b.Location.X - diff.X, b.Location.Y - diff.Y);
+                        b.Location = new Point(b.Location.X + diff.X, b.Location.Y + diff.Y);
                     }
 
-                    _rect.X -= diff.X;
-                    _rect.Y -= diff.Y;
-
-                    return true;
+                    _rect.X += diff.X;
+                    _rect.Y += diff.Y;
                 }
             }
             else if (Buttons.Contains(button))
             {
-                var i = Buttons.IndexOf(button);
-                if (i == 0)
+                if (IsValidate(location))
                 {
-                    Buttons[1].Location = new Point(Buttons[1].Location.X, Buttons[1].Location.Y + diff.Y);
-                    Buttons[3].Location = new Point(Buttons[3].Location.X + diff.X, Buttons[3].Location.Y);
+                    var i = Buttons.IndexOf(button);
+                    if (i == 0)
+                    {
+                        Buttons[0].Location = location;
+                        Buttons[1].Location = new Point(Buttons[1].Location.X, Buttons[1].Location.Y + diff.Y);
+                        Buttons[3].Location = new Point(Buttons[3].Location.X + diff.X, Buttons[3].Location.Y);
+                    }
+                    else if (i == 1)
+                    {
+                        Buttons[1].Location = location;
+                        Buttons[2].Location = new Point(Buttons[2].Location.X + diff.X, Buttons[2].Location.Y);
+                        Buttons[0].Location = new Point(Buttons[0].Location.X, Buttons[0].Location.Y + diff.Y);
+                    }
+                    else if (i == 2)
+                    {
+                        Buttons[2].Location = location;
+                        Buttons[1].Location = new Point(Buttons[1].Location.X + diff.X, Buttons[1].Location.Y);
+                        Buttons[3].Location = new Point(Buttons[3].Location.X, Buttons[3].Location.Y + diff.Y);
+                    }
+                    else if (i == 3)
+                    {
+                        Buttons[3].Location = location;
+                        Buttons[2].Location = new Point(Buttons[2].Location.X, Buttons[2].Location.Y + diff.Y);
+                        Buttons[0].Location = new Point(Buttons[0].Location.X + diff.X, Buttons[0].Location.Y);
+                    }
+
+                    var width = Buttons[1].Location.X - Buttons[0].Location.X;
+                    var height = Buttons[3].Location.Y - Buttons[0].Location.Y;
+                    CenterButton.Location = new Point(Buttons[0].Location.X + width / 2,
+                        Buttons[0].Location.Y + height / 2);
+
+                    textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
+
+                    width = Math.Abs(width);
+                    height = Math.Abs(height);
+
+                    var leftUpButton = new Point(CenterButton.Location.X - width / 2, CenterButton.Location.Y - height / 2);
+
+                    _rect = new Rectangle(leftUpButton.X + 4, leftUpButton.Y + 4, width, height);
                 }
-                else if (i == 1)
-                {
-                    Buttons[2].Location = new Point(Buttons[2].Location.X + diff.X, Buttons[2].Location.Y);
-                    Buttons[0].Location = new Point(Buttons[0].Location.X, Buttons[0].Location.Y + diff.Y);
-                }
-                else if (i == 2)
-                {
-                    Buttons[1].Location = new Point(Buttons[1].Location.X + diff.X, Buttons[1].Location.Y);
-                    Buttons[3].Location = new Point(Buttons[3].Location.X, Buttons[3].Location.Y + diff.Y);
-                }
-                else if (i == 3)
-                {
-                    Buttons[2].Location = new Point(Buttons[2].Location.X, Buttons[2].Location.Y + diff.Y);
-                    Buttons[0].Location = new Point(Buttons[0].Location.X + diff.X, Buttons[0].Location.Y);
-                }
-
-                var width = Buttons[1].Location.X - Buttons[0].Location.X;
-                var height = Buttons[3].Location.Y - Buttons[0].Location.Y;
-                CenterButton.Location = new Point(Buttons[0].Location.X + width / 2, 
-                    Buttons[0].Location.Y + height / 2);
-
-                textBox.Location = new Point(CenterButton.Location.X + 8, CenterButton.Location.Y + 8);
-
-                width = Math.Abs(width);
-                height = Math.Abs(height);
-
-                var leftUpButton = new Point(CenterButton.Location.X - width / 2, CenterButton.Location.Y - height / 2);
-
-                _rect = new Rectangle(leftUpButton.X + 4, leftUpButton.Y + 4, width, height);
             }
+
             Program.MainForm.DrawFigures();
             OnUpdate();
             return IsValidate(CenterButton.Location, Buttons.Select(b => b.Location).ToList());
@@ -196,6 +196,11 @@ namespace ShapeEditor
                 }
             }
             return isValidate;
+        }
+
+        private bool IsValidate(Point point)
+        {
+            return !(point.X < 0 || point.Y < 0 || point.X > PictureBox.Width - 6 || point.Y > PictureBox.Height - 6);
         }
     }
 }

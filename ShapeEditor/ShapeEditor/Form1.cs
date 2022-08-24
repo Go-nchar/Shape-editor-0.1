@@ -186,11 +186,11 @@ namespace ShapeEditor
                 try
                 {
                     _centerDiff = new Point(_center.X - f.CenterButton.Location.X, _center.Y - f.CenterButton.Location.Y);
-                _pointDiffs = new List<Point>();
-                for (var k = 0; k < _points.Count; k++)
-                {
-                    _pointDiffs.Add(new Point(_points[k].X - f.Buttons[k].Location.X, _points[k].Y - f.Buttons[k].Location.Y));
-                }
+                    _pointDiffs = new List<Point>();
+                    for (var k = 0; k < _points.Count; k++)
+                    {
+                        _pointDiffs.Add(new Point(_points[k].X - f.Buttons[k].Location.X, _points[k].Y - f.Buttons[k].Location.Y));
+                    }
                 }
                 catch
                 {
@@ -199,8 +199,8 @@ namespace ShapeEditor
 
                 if (_centerDiff.X != 0 || _centerDiff.Y != 0)
                 {
-                    f.CenterButton.Location = _center;
-                    f.Update(_centerDiff, f.CenterButton);
+                    //f.CenterButton.Location = _center;
+                    f.Update(_centerDiff, _center, f.CenterButton);
                 }
 
                 for (var p = 0; p < _pointDiffs.Count; p++)
@@ -208,8 +208,8 @@ namespace ShapeEditor
                     if (_pointDiffs[p].X == 0 && _pointDiffs[p].Y == 0)
                         continue;
 
-                    f.Buttons[p].Location = _points[p];
-                    f.Update(_pointDiffs[p], f.Buttons[p]);
+                    //f.Buttons[p].Location = _points[p];
+                    f.Update(_pointDiffs[p], _points[p], f.Buttons[p]);
                 }
             }
 
